@@ -5,3 +5,6 @@ openai
 supabase
 serpapi
 python-dotenv
+google-search-results
+google-generativeai
+pydantic
