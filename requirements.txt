@@ -1,0 +1,7 @@
+requests
+beautifulsoup4
+langchain
+openai
+supabase
+serpapi
+python-dotenv
