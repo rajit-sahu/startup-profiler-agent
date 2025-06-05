@@ -3,11 +3,13 @@ import os
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import json
+import re
 
 load_dotenv(dotenv_path=".env")
-genai.configure(api_key = os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 model = genai.GenerativeModel("gemini-2.0-flash")
+
 
 # making a structured schema
 class CompanyProfile(BaseModel):
@@ -17,6 +19,15 @@ class CompanyProfile(BaseModel):
     problems_solved: str
     competitors: list[str]
     news_summary: str
+
+
+def extract_json_from_text(text):
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    else:
+        raise ValueError("Gemini response did not contain valid JSON.")
+
 
 def build_prompt(scraper_data, news_articles):
     prompt = f"""
@@ -33,7 +44,9 @@ def build_prompt(scraper_data, news_articles):
     Recent News about the given startup is:   
     """
     for i, article in enumerate(news_articles, 1):
-        prompt += f"\n  {i}. {article['title']} — {article['source']} ({article['date']})"
+        prompt += (
+            f"\n  {i}. {article['title']} — {article['source']} ({article['date']})"
+        )
 
     prompt += """
     Return a JSON object with the following fields:
@@ -48,13 +61,8 @@ def build_prompt(scraper_data, news_articles):
     """
     return prompt.strip()
 
-def enrich_data(scraper_data, news_articles): 
+
+def enrich_data(scraper_data, news_articles):
     prompt = build_prompt(scraper_data, news_articles)
-    response = model.generate_content(
-        contents=prompt,
-        generation_config = {
-                    "response_mime_type":"application/json",
-                    "response_schema": CompanyProfile
-                    }
-        )
-    return response.parsed
+    response = model.generate_content(prompt)
+    return extract_json_from_text(response.text)
