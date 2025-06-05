@@ -28,6 +28,19 @@ An intelligent agent that analyzes any startup or company by scraping its websit
   - News summary
 - Store entries in Supabase (skip if already exists)
 
+Supabase Schema
+CREATE TABLE startups (
+  id           UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  domain       TEXT UNIQUE NOT NULL,
+  company_appeal TEXT,
+  industry     TEXT,
+  target_audience TEXT,
+  problems_solved TEXT,
+  competitors  TEXT[],
+  news_summary TEXT,
+  created_at   TIMESTAMP DEFAULT NOW()
+);
+
 ## Setup
 
 ### 1. Clone Repo
@@ -35,3 +48,7 @@ An intelligent agent that analyzes any startup or company by scraping its websit
 ```bash
 git clone https://github.com/your-username/startup-profiler-agent.git
 cd startup-profiler-agent
+
+Copy .env.template to .env
+
+Fill in the actual API keys and Supabase URL/Key.
