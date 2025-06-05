@@ -2,7 +2,7 @@ import os
 from serpapi import GoogleSearch
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=".env.template")
+load_dotenv(dotenv_path=".env")
 
 def fetch_latest_news(company_name):
     api_key = os.getenv("SERPAPI_KEY")

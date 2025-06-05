@@ -1,3 +1,4 @@
+# tools for langchain
 from langchain_core.tools import tool
 from app.scraper import scrape_site
 from app.news_fetcher import fetch_latest_news

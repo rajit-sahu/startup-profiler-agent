@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import json
 
-load_dotenv(dotenv_path=".env.template")
+load_dotenv(dotenv_path=".env")
 genai.configure(api_key = os.getenv("GEMINI_API_KEY"))
 
 model = genai.GenerativeModel("gemini-2.0-flash")
