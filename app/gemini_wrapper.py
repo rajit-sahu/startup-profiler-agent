@@ -7,15 +7,15 @@ import json
 load_dotenv(dotenv_path=".env.template")
 genai.configure(api_key = os.getenv("GEMINI_API_KEY"))
 
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # making a structured schema
-class company_profile(BaseModel):
+class CompanyProfile(BaseModel):
     company_appeal: str
     industry: str
     target_audience: str
     problems_solved: str
-    pot_competitors: list[str]
+    competitors: list[str]
     news_summary: str
 
 def build_prompt(scraper_data, news_articles):
@@ -38,24 +38,23 @@ def build_prompt(scraper_data, news_articles):
     prompt += """
     Return a JSON object with the following fields:
     {
-    "company_appeal": "...", (what the company does (100 word summary))
-    "industry": "...", (what industry is the company in)
-    "target": "...", (who is the target audience)
-    "problems_solved": "...", (what key problems does the company solve)
-    "competitors": ["...", "..."], (suggest 2, 3 potentional competitors for the company)
-    "news_summary": "..." (Summarize the latest news into a short paragraph)
+    "company_appeal": "...",           // what the company does (max 100 words)
+    "industry": "...",                 // what industry is the company in (max 8 words)
+    "target_audience": "...",          // who is the target audience (max 50 words)
+    "problems_solved": "...",          // what key problems does the company solve (max 40 words)
+    "competitors": ["...", "..."],     // 2-3 potential competitors
+    "news_summary": "..."              // summarize the latest news (max 100 words)
     }
     """
     return prompt.strip()
 
 def enrich_data(scraper_data, news_articles): 
     prompt = build_prompt(scraper_data, news_articles)
-    response = client.models.generate_content(
-        model="gemini-2.0-flash", 
+    response = model.generate_content(
         contents=prompt,
-        config = {
-                    "responses_mime_type":"application/json",
-                    "response_schema": list[company_profile]
+        generation_config = {
+                    "response_mime_type":"application/json",
+                    "response_schema": CompanyProfile
                     }
         )
-    return response
+    return response.parsed
